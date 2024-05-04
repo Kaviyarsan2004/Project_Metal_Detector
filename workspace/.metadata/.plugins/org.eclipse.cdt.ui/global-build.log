@@ -1,0 +1,5 @@
+Nothing to build in platform 'mb_lab8_wrapper_JXACD'
+
+18:31:37 **** Incremental Build of configuration Debug for project final_project_sw ****
+make all 
+make: Nothing to be done for 'all'.

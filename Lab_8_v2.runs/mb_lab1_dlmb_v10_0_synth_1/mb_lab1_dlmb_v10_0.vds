@@ -1,0 +1,33 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:14:34 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Mon Apr 15 22:12:57 2024
+# Process ID: 22436
+# Current directory: D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1
+# Command line: vivado.exe -log mb_lab1_dlmb_v10_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source mb_lab1_dlmb_v10_0.tcl
+# Log file: D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1/mb_lab1_dlmb_v10_0.vds
+# Journal file: D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1\vivado.jou
+# Running On: LAPTOP-F28O89LN, OS: Windows, CPU Frequency: 2895 MHz, CPU Physical cores: 16, Host memory: 16557 MB
+#-----------------------------------------------------------
+source mb_lab1_dlmb_v10_0.tcl -notrace
+create_project: Time (s): cpu = 00:00:01 ; elapsed = 00:00:06 . Memory (MB): peak = 565.816 ; gain = 180.566
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+WARNING: [IP_Flow 19-3685] Ignored loading user repository 'd:/EECE387_1/Lab_8_v2/ip_repo/sensor_sonic_1_0'. The path is contained within another repository.
+INFO: [IP_Flow 19-1700] Loaded user IP repository 'd:/EECE387_1/ip_repo'.
+WARNING: [IP_Flow 19-3685] Ignored loading user repository 'd:/EECE387_1/Lab_8_v2/ip_repo/Pmod_encod_1_0'. The path is contained within another repository.
+WARNING: [IP_Flow 19-2248] Failed to load user IP repository 'd:/EECE387_1/Lab_8_v2/ip_repo'; Can't find the specified path.
+If this directory should no longer be in your list of user repositories, go to the IP Settings dialog and remove it.
+WARNING: [IP_Flow 19-3685] Ignored loading user repository 'd:/EECE387_1/Lab_8_v2/ip_repo/test_port_1_1'. The path is contained within another repository.
+WARNING: [IP_Flow 19-3685] Ignored loading user repository 'd:/EECE387_1/Lab_8_v2/ip_repo/test_port_1_0'. The path is contained within another repository.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Vivado/2023.2/data/ip'.
+INFO: [IP_Flow 19-6924] IPCACHE: Running cache check for IP inst: mb_lab1_dlmb_v10_0
+INFO: [IP_Flow 19-6922] IPCACHE: Exporting cached entry 5ec672742b569f1f to dir: D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1
+INFO: [IP_Flow 19-6928] IPCACHE: copied cached file d:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.cache/ip/2023.2/5/e/5ec672742b569f1f/mb_lab1_ilmb_v10_0.dcp to D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1/mb_lab1_dlmb_v10_0.dcp.
+INFO: [IP_Flow 19-6928] IPCACHE: copied cached file d:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.cache/ip/2023.2/5/e/5ec672742b569f1f/mb_lab1_ilmb_v10_0_sim_netlist.v to D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1/mb_lab1_dlmb_v10_0_sim_netlist.v.
+INFO: [IP_Flow 19-6928] IPCACHE: copied cached file d:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.cache/ip/2023.2/5/e/5ec672742b569f1f/mb_lab1_ilmb_v10_0_sim_netlist.vhdl to D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1/mb_lab1_dlmb_v10_0_sim_netlist.vhdl.
+INFO: [IP_Flow 19-6928] IPCACHE: copied cached file d:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.cache/ip/2023.2/5/e/5ec672742b569f1f/mb_lab1_ilmb_v10_0_stub.v to D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1/mb_lab1_dlmb_v10_0_stub.v.
+INFO: [IP_Flow 19-6928] IPCACHE: copied cached file d:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.cache/ip/2023.2/5/e/5ec672742b569f1f/mb_lab1_ilmb_v10_0_stub.vhdl to D:/EECE387_1/Lab_8_v2/Lab_8_v2/Lab_8_v2.runs/mb_lab1_dlmb_v10_0_synth_1/mb_lab1_dlmb_v10_0_stub.vhdl.
+INFO: [IP_Flow 19-4838] Using cached IP synthesis design for IP mb_lab1_dlmb_v10_0, cache-ID = 5ec672742b569f1f.
+INFO: [Common 17-206] Exiting Vivado at Mon Apr 15 22:13:11 2024...

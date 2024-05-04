@@ -1,0 +1,16 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:14:34 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Mon Apr 15 19:21:29 2024
+# Process ID: 28212
+# Current directory: D:/EECE387_1/ip_repo
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent28828 D:\EECE387_1\ip_repo\edit_alarm_timer_v1_0.xpr
+# Log file: D:/EECE387_1/ip_repo/vivado.log
+# Journal file: D:/EECE387_1/ip_repo\vivado.jou
+# Running On: LAPTOP-F28O89LN, OS: Windows, CPU Frequency: 2895 MHz, CPU Physical cores: 16, Host memory: 16557 MB
+#-----------------------------------------------------------
+start_gui
+open_project D:/EECE387_1/ip_repo/edit_alarm_timer_v1_0.xpr
+update_compile_order -fileset sources_1

@@ -1,0 +1,46 @@
+#-----------------------------------------------------------
+# Vivado v2023.2 (64-bit)
+# SW Build 4029153 on Fri Oct 13 20:14:34 MDT 2023
+# IP Build 4028589 on Sat Oct 14 00:45:43 MDT 2023
+# SharedData Build 4025554 on Tue Oct 10 17:18:54 MDT 2023
+# Start of session at: Mon Apr 15 19:21:29 2024
+# Process ID: 28212
+# Current directory: D:/EECE387_1/ip_repo
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent28828 D:\EECE387_1\ip_repo\edit_alarm_timer_v1_0.xpr
+# Log file: D:/EECE387_1/ip_repo/vivado.log
+# Journal file: D:/EECE387_1/ip_repo\vivado.jou
+# Running On: LAPTOP-F28O89LN, OS: Windows, CPU Frequency: 2895 MHz, CPU Physical cores: 16, Host memory: 16557 MB
+#-----------------------------------------------------------
+start_gui
+open_project D:/EECE387_1/ip_repo/edit_alarm_timer_v1_0.xpr
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek280_es:part0:1.0 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/vek280/es/rev_a/1.0/board.xml as part xcve2802-vsvh1760-2lp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek280_es:part0:1.1 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/vek280/es/rev_a/1.1/board.xml as part xcve2802-vsvh1760-2lp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek280_es_revb:part0:1.0 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/vek280/es/rev_b/1.0/board.xml as part xcve2802-vsvh1760-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vek280_es_revb:part0:1.1 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/vek280/es/rev_b/1.1/board.xml as part xcve2802-vsvh1760-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vhk158_es:part0:1.0 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/vhk158/es/1.0/board.xml as part xcvh1582-vsva3697-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:vhk158_es:part0:1.1 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/vhk158/es/1.1/board.xml as part xcvh1582-vsva3697-2mp-e-s-es1 specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu208ld:part0:2.0 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/zcu208ld/production/2.0/board.xml as part xczu58dr-fsvg1517-2-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu216ld:part0:2.0 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/zcu216ld/production/2.0/board.xml as part xczu59dr-ffvf1760-2-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu670:part0:2.0 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/zcu670/2.0/board.xml as part xczu67dr-fsve1156-2-i specified in board_part file is either invalid or not available
+WARNING: [Board 49-26] cannot add Board Part xilinx.com:zcu670ld:part0:1.0 available at D:/Vivado/2023.2/data/xhub/boards/XilinxBoardStore/boards/Xilinx/zcu670ld/1.0/board.xml as part xczu57dr-fsve1156-2-i specified in board_part file is either invalid or not available
+INFO: [Project 1-313] Project file moved from 'u:/eece387/ip_repo' since last save.
+WARNING: [filemgmt 56-3] IP Repository Path: Could not find the directory 'D:/EECE387/ip_repo/alarm_timer_1_0'.
+WARNING: [filemgmt 56-3] IP Repository Path: Could not find the directory 'D:/EECE387/ip_repo/alarm_timer_1_0'.
+INFO: [filemgmt 56-3] Default IP Output Path : Could not find the directory 'D:/EECE387_1/ip_repo/edit_alarm_timer_v1_0.gen/sources_1'.
+CRITICAL WARNING: [Project 1-311] Could not find the file 'D:/EECE387/ip_repo/alarm_timer_1_0/hdl/alarm_timer_v1_0_S00_AXI.vhd', nor could it be found using path 'u:/EECE387/ip_repo/alarm_timer_1_0/hdl/alarm_timer_v1_0_S00_AXI.vhd'.
+CRITICAL WARNING: [Project 1-311] Could not find the file 'D:/EECE387/ip_repo/alarm_timer_1_0/hdl/alarm_timer_v1_0.vhd', nor could it be found using path 'u:/EECE387/ip_repo/alarm_timer_1_0/hdl/alarm_timer_v1_0.vhd'.
+CRITICAL WARNING: [Project 1-311] Could not find the file 'D:/EECE387/ip_repo/alarm_timer_1_0/component.xml', nor could it be found using path 'u:/EECE387/ip_repo/alarm_timer_1_0/component.xml'.
+Scanning sources...
+Finished scanning sources
+INFO: [Project 1-230] Project 'edit_alarm_timer_v1_0.xpr' upgraded for this version of Vivado.
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+WARNING: [IP_Flow 19-2248] Failed to load user IP repository 'd:/EECE387/ip_repo/alarm_timer_1_0'; Can't find the specified path.
+If this directory should no longer be in your list of user repositories, go to the IP Settings dialog and remove it.
+WARNING: [IP_Flow 19-2207] Repository 'd:/EECE387/ip_repo/alarm_timer_1_0' already exists; ignoring attempt to add it again.
+WARNING: [IP_Flow 19-2248] Failed to load user IP repository 'd:/EECE387/ip_repo/alarm_timer_1_0'; Can't find the specified path.
+If this directory should no longer be in your list of user repositories, go to the IP Settings dialog and remove it.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Vivado/2023.2/data/ip'.
+open_project: Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 1569.086 ; gain = 206.898
+update_compile_order -fileset sources_1
+exit
+INFO: [Common 17-206] Exiting Vivado at Mon Apr 15 19:25:13 2024...

@@ -1,0 +1,387 @@
+#include <stdio.h>
+#include "platform.h"
+#include "xil_printf.h"
+
+#define one_ms 100*1000
+#define one_us 100
+#define max_sample_rate 2048
+#define sample_rate 256
+
+//7.44V
+#define Max_noMetal 25527
+
+#define Max_smallMetal 26956
+
+#define Max_mediumMetal 30286
+
+//7.5V
+//#define Mmin_noMetal  27146
+//#define Max_noMetal 27272
+//
+//#define Min_smallMetal 26707
+//#define Max_smallMetal 26769
+//
+//#define Min_mediumMetal 32846
+//#define Max_mediumMetal 32753
+
+
+#define LEDS ( *(unsigned volatile *)0x40000000)
+#define SW ( *(unsigned volatile *)0x40000008)
+#define JB ( *(unsigned volatile *)0x40010000)
+#define DPSEG ( *(unsigned volatile *)0x40020000)
+#define AN ( *(unsigned volatile *)0x40020008)
+#define BTN ( *(unsigned volatile *)0x40030000)
+
+#define alarm_cntr (*(volatile unsigned *)0x44a10000)
+#define alarm1_alarm0 (*(volatile unsigned *)0x44a10004)
+#define alarm0_value (*(volatile unsigned *)0x44a10008)
+#define alarm1_value (*(volatile unsigned *)0x44a1000C)
+
+#define JXADC1_CH1 (*(volatile unsigned *)0x44a20258)
+
+void delay_ms2(uint32_t val)
+{
+	while((alarm1_alarm0 &(1<<0))==0)
+	{
+
+	}
+	alarm0_value= one_ms * val;
+}
+
+void delay_us(uint32_t val)
+{
+	while((alarm1_alarm0 &(1<<1))==0)
+	{
+
+	}
+	alarm1_value= one_us * val;
+}
+
+_Bool down_button_press(){
+
+	_Bool retval=0;
+	static _Bool state=0;
+	if(!state && BTN &(1<<1))
+	{
+		retval=1;
+	}
+	state=BTN &(1<<1);
+	return retval;
+
+}
+
+void sev_disp(uint8_t data[4])
+{
+
+	static uint16_t cnt=0;
+	static uint16_t digit = 0;
+	const uint8_t disp_lut[16] = {0b00111111, 0b0000110, 0b01011011, 0b01001111, 0b01100110, 0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01100111, 0b01110111, 0b01111100, 0b00111001, 0b01011110, 0b01111001, 0b01110001};
+
+	AN = ~(1<<cnt);
+
+	DPSEG=~disp_lut[data[cnt]];
+
+	if(++cnt == 4)
+	{
+		cnt = 0;
+	}
+	if (digit == 1)
+	{
+		DPSEG ^= 0b10000000;
+	}
+	if(++digit == 1000)
+	{
+		digit = 0;
+	}
+
+
+}
+
+int calculate_average_voltage(){
+	int  maxSum = 0;
+	for(int i = 0; i < max_sample_rate; i++)
+	{
+	maxSum += JXADC1_CH1;
+	delay_us(1);
+
+	}
+	int maxVoltage = maxSum / max_sample_rate;
+	return maxVoltage;
+}
+
+void LED_strength_meter(int volt){
+
+	if(volt > Max_noMetal)
+	{
+		LEDS |= (1<<1);
+		LEDS |= (1<<2);
+	}
+	else{
+		LEDS &= ~(1<<1);
+		LEDS &= ~(1<<2);
+	}
+	if(volt > Max_noMetal + 500)
+	{
+		LEDS |= (1<<3);
+		LEDS |= (1<<4);
+	}
+	else
+	{
+		LEDS &= ~(1<<3);
+		LEDS &= ~(1<<4);
+	}
+	if(volt > Max_noMetal + 1000)
+	{
+		LEDS |= (1<<5);
+		LEDS |= (1<<6);
+	}
+	else
+	{
+		LEDS &= ~(1<<5);
+		LEDS &= ~(1<<6);
+	}
+	if(volt > Max_noMetal + 1500)
+	{
+		LEDS |= (1<<7);
+		LEDS |= (1<<8);
+	}
+	else
+	{
+		LEDS &= ~(1<<7);
+		LEDS &= ~(1<<8);
+	}
+	if(volt > Max_noMetal + 2000)
+	{
+		LEDS |= (1<<9);
+		LEDS |= (1<<10);
+
+	}
+	else
+	{
+		LEDS &= ~(1<<9);
+		LEDS &= ~(1<<10);
+	}
+	if(volt > Max_noMetal + 2500)
+	{
+		LEDS |= (1<<11);
+		LEDS |= (1<<12);
+	}
+	else
+	{
+		LEDS &= ~(1<<11);
+		LEDS &= ~(1<<12);
+	}
+	if(volt > Max_noMetal + 3200)
+	{
+		LEDS |= (1<<13);
+		LEDS |= (1<<14);
+	}
+	else
+	{
+		LEDS &= ~(1<<13);
+		LEDS &= ~(1<<14);
+	}
+	if(volt > Max_noMetal + 33500)
+	{
+		LEDS |= (1<<15);
+		LEDS |= (1<<16);
+	}
+	else
+	{
+		LEDS &= ~(1<<15);
+		LEDS &= ~(1<<16);
+	}
+
+}
+
+
+int main()
+{
+    init_platform();
+
+    uint8_t data[4];
+
+    uint8_t countL=0;
+    uint8_t countM=0;
+    uint8_t countS=0;
+    uint8_t countT=0;
+    int maxVolt;
+    _Bool large=0;
+    _Bool medium=0;
+    _Bool small=0;
+
+
+    print("Hello World\n\r");
+
+
+    while(1)
+    {
+    	delay_ms2(1);
+    	data[3]=countL;
+		data[2]=countM;
+		data[1]=countS;
+		data[0]=countT;
+
+		maxVolt = calculate_average_voltage();
+		xil_printf("%d \n",maxVolt);
+
+//		if(maxVolt > Max_noMetal +200 ) //		small metal
+//		{
+//			if(maxVolt > Max_smallMetal + 100 ) //		medium metal size
+//			{
+//				if(maxVolt > Max_mediumMetal  ) //		Large metal Size
+//				{
+//					large=1;
+//				}
+//				else
+//				{
+//					medium =1;
+//				}
+//			}
+//			else
+//			{
+//				small = 1;
+//
+//			}
+//		}
+
+		if(SW & (1<<0))
+		{
+			if(maxVolt > Max_noMetal +100 ) //		small metal
+			{
+				if(maxVolt > Max_smallMetal + 400 ) //		medium metal size
+				{
+					if(maxVolt > Max_mediumMetal + 250 ) //		Large metal Size
+					{
+						large=1;
+					}
+					else
+					{
+						medium =1;
+					}
+				}
+				else
+				{
+					small = 1;
+
+				}
+			}
+		}
+
+//		all are medium
+		if(SW & (1<<1))
+		{
+			if(maxVolt > Max_noMetal + 200 ) //		small metal
+			{
+				if(maxVolt > Max_smallMetal + 200 ) //		medium metal size
+				{
+					if(maxVolt > Max_mediumMetal - 100  ) //		Large metal Size
+					{
+						large=1;
+					}
+					else
+					{
+						medium =1;
+					}
+				}
+				else
+				{
+					small = 1;
+
+				}
+			}
+		}
+
+//		large as medium
+		if(SW & (1<<2))
+		{
+			if(maxVolt > Max_noMetal +200 ) //		small metal
+			{
+				if(maxVolt > Max_smallMetal + 100 ) //		medium metal size
+				{
+					if(maxVolt > Max_mediumMetal - 100  ) //		Large metal Size
+					{
+						large=1;
+					}
+					else
+					{
+						medium =1;
+					}
+				}
+				else
+				{
+					small = 1;
+
+				}
+			}
+		}
+
+//		nothing deducted
+		if(SW & (1<<3))
+		{
+			if(maxVolt > Max_noMetal + 100 ) //		small metal
+			{
+				if(maxVolt > Max_smallMetal  ) //		medium metal size
+				{
+					if(maxVolt > Max_mediumMetal  ) //		Large metal Size
+					{
+						large=1;
+					}
+					else
+					{
+						medium =1;
+					}
+				}
+				else
+				{
+					small = 1;
+
+				}
+			}
+		}
+
+
+
+
+		if(maxVolt< Max_noMetal) 		//	counter
+		{
+				if(large)
+				{
+						countL++;
+				}
+				else if(medium && !large)
+				{
+						countM++;
+				}
+				else if(small && !large && !medium)
+				{
+						countS++;
+				}
+				large=0;
+				medium=0;
+				small=0;
+
+		}
+
+
+//		clearing the seven_seg display
+		if(down_button_press())
+		{
+			countL=0;
+			countM=0;
+			countS=0;
+			countT=0;
+			xil_printf("%d \n", countS);
+			xil_printf("%d \n",countM);
+			xil_printf("%d \n",countL);
+		}
+
+		countT=countL + countM + countS;
+
+
+		LED_strength_meter(maxVolt);
+
+		sev_disp(data);
+    }
+}
+

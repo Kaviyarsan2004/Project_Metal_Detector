@@ -1,0 +1,216 @@
+#include <stdio.h>
+#include "platform.h"
+#include "xil_printf.h"
+
+#define one_ms 100*1000
+#define one_us 100
+#define MAX_SAMPLE_RATE 2048
+
+#define LEDS ( *(unsigned volatile *)0x40000000)
+#define SW ( *(unsigned volatile *)0x40000008)
+#define JB ( *(unsigned volatile *)0x40010000)
+#define DPSEG ( *(unsigned volatile *)0x40020000)
+#define AN ( *(unsigned volatile *)0x40020008)
+#define BTN ( *(unsigned volatile *)0x40030000)
+
+#define alarm_cntr (*(volatile unsigned *)0x44a10000)
+#define alarm1_alarm0 (*(volatile unsigned *)0x44a10004)
+#define alarm0_value (*(volatile unsigned *)0x44a10008)
+#define alarm1_value (*(volatile unsigned *)0x44a1000C)
+
+#define JXADC1_CH1 (*(volatile unsigned *)0x44a20258)
+#define ADC_R ( *(volatile unsigned *) 0x44a20250)
+
+
+void delay_ms2(uint32_t val)
+{
+	while((alarm1_alarm0 &(1<<0))==0)
+	{
+
+	}
+	alarm0_value= one_ms * val;
+}
+
+void delay_us(uint32_t val)
+{
+	while((alarm1_alarm0 &(1<<1))==0)
+	{
+
+	}
+	alarm1_value= one_us * val;
+}
+
+_Bool up_button_press(){
+	_Bool retval=0;
+		static _Bool state=0;
+		if(!state && BTN &(1<<0))
+		{
+			retval=1;
+		}
+		state=BTN &(1<<0);
+		return retval;
+
+}
+
+_Bool down_button_press(){
+
+	_Bool retval=0;
+	static _Bool state=0;
+	if(!state && BTN &(1<<1))
+	{
+		retval=1;
+	}
+	state=BTN &(1<<1);
+	return retval;
+
+}
+
+void sev_disp(uint8_t data[4])
+{
+
+	static uint16_t cnt=0;
+	static uint16_t digit = 0;
+	const uint8_t disp_lut[16] = {0b00111111, 0b0000110, 0b01011011, 0b01001111, 0b01100110, 0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01100111, 0b01110111, 0b01111100, 0b00111001, 0b01011110, 0b01111001, 0b01110001};
+
+	AN = ~(1<<cnt);
+
+	DPSEG=~disp_lut[data[cnt]];
+
+	if(++cnt == 4)
+	{
+		cnt = 0;
+	}
+	if (digit == 1)
+	{
+		DPSEG ^= 0b10000000;
+	}
+	if(++digit == 1000)
+	{
+		digit = 0;
+	}
+
+
+}
+
+void Led_strength(uint8_t distance){
+
+	unsigned int dropTotal = distance;
+//	LEDS &= ~0x3FF;
+//	// No strength
+//	if(dropTotal < 1)
+//	{
+	LEDS |= 0xFFFF;
+//	}
+//	// Full strength
+//	else if(dropTotal >= 16)
+//	{
+//	LEDS |= 0x3FF;
+//	}
+		LEDS &= ~(1<<distance);
+}
+
+int calculate_average_voltage(){
+	int  maxSum = 0;
+	for(int maxCntr = 0; maxCntr < MAX_SAMPLE_RATE; maxCntr++)
+	{
+	maxSum += JXADC1_CH1;
+	// Delay 100 us
+	delay_us(1);
+
+	}
+	int maxVoltage = maxSum / MAX_SAMPLE_RATE;
+}
+
+#define MAX_SAMPLE_RATE 2048
+#define SAMPLE_RATE 256
+
+int main()
+{
+    init_platform();
+
+    uint8_t data[4];
+
+    uint8_t countL=0;
+    uint8_t countC=0;
+    uint8_t countR=0;
+    uint8_t countT=0;
+    int prev=0;
+    int diff;
+    int maxVoltage;
+
+    print("Hello World\n\r");
+
+
+    while(1)
+    {
+    	delay_ms2(1);
+    	data[3]=countL;
+		data[2]=countC;
+		data[1]=countR;
+		data[0]=countT;
+
+		maxVoltage=calculate_average_voltage();
+		xil_printf("%d \n",maxVoltage);
+
+		diff= maxVoltage - prev;
+//		xil_printf("%d \n",diff);
+
+		prev=maxVoltage;
+
+//		print("\n");
+
+//		xil_printf("%d \n",((JXADC1_CH1>>4)*244)/1000);
+    	if(up_button_press()){
+    		print("up");
+    		countL+=1;
+    		countR+=2;
+    		countC+=1;
+    		countT=countL+countR+countC;
+
+    	}
+    	if(down_button_press())
+    	{
+    		print("Down");
+    		countL-=1;
+    	}
+    	if(maxVoltage>30500)
+    	{
+    		countL+=1;
+    		delay_ms2(500);
+    	}
+//    	large metal LED
+    	if(maxVoltage>35900)
+    	{
+    		LEDS |= (4<<1);
+    	}
+    	else{
+    		LEDS &= ~(4<<1);
+    	}
+
+//    	small metal LED
+    	if(maxVoltage>30150)
+    	{
+			LEDS |= (1<<1);
+		}
+		else{
+			LEDS &= ~(1<<1);
+		}
+
+//    	medium metal LED
+    	if(maxVoltage>31850)
+		{
+			LEDS |= (2<<1);
+		}
+		else{
+			LEDS &= ~(2<<1);
+		}
+
+    	sev_disp(data);
+//    	LEDS |= (3<<1);
+//    	Led_strength(countL);
+
+
+
+
+    }
+}

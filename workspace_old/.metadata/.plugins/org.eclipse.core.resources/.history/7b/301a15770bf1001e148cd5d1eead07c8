@@ -1,0 +1,522 @@
+#include "xil_printf.h"
+#define one_ms 100*1000
+#define one_us 100
+
+#define ONE_US 100 // 10ns * 100
+#define ONE_MS 100*1000 // 1us * 100
+#define INCH_CONST 1
+#define DELAY_UNIT 81
+
+#define LEDS ( *(unsigned volatile *)0x40000000)
+#define SW ( *(unsigned volatile *)0x40000008)
+#define JB ( *(unsigned volatile *)0x40010000)
+#define DPSEG ( *(unsigned volatile *)0x40020000)
+#define AN ( *(unsigned volatile *)0x40020008)
+#define BTN ( *(unsigned volatile *)0x40030000)
+
+#define ALARM_CNTR (*(volatile unsigned *)0x44a10000)
+#define ALARM0 (*(volatile unsigned *)0x44a10004)
+#define ALARM1 (*(volatile unsigned *)0x44a10005)
+#define ALARM0_VALUE (*(volatile unsigned *)0x44a10008)
+#define ALARM1_VALUE (*(volatile unsigned *)0x44a1000C)
+
+#define ALT_CNTR (*(volatile unsigned *)0x44a00000)
+#define  dummy (*(volatile unsigned *)0x44a00004)
+
+void delay_ms(unsigned t){
+	unsigned cntr1, cntr2;
+	while(t--)
+		for (cntr1 = 0; cntr1<100; cntr1++){
+			for (cntr2 = 0; cntr2<DELAY_UNIT; cntr2++)
+				{}
+		}
+}
+
+
+void delay_ms2 (uint32_t val){
+	while ((ALARM0 & (1<<0)) == 0)
+		{}
+	ALARM0_VALUE = 100000000; //set alarm offset to loop time
+}
+
+
+void seg_disp(uint8_t data[4], uint8_t cursor, _Bool count){
+	const uint8_t disp_lut[13] = {
+		0b00111111, //0
+		0b00000110, //1
+		0b01011011, //2
+		0b01001111, //3
+		0b01100110, //4
+		0b01101101, //5
+		0b01111101, //6
+		0b00000111, //7
+		0b01111111, //8
+		0b01101111, //9
+		0b01110111, //10
+		0b01111100, //11
+		0b00111001, //12
+	};
+
+	const uint8_t disp_lut_dp[13] = {
+		0b10111111, //0
+		0b10000110, //1
+		0b11011011, //2
+		0b11001111, //3
+		0b11100110, //4
+		0b11101101, //5
+		0b11111101, //6
+		0b10000111, //7
+		0b11111111, //8
+		0b11101111, //9
+		0b11110111, //10
+		0b11111100, //11
+		0b10111001, //12
+	};
+	static uint8_t digit = 0;
+
+	//AN = ~(1<<(3-digit)); // enable the LEDS
+	//DPSEG = ~disp_lut[data[digit]]; //Write data??
+
+	if(digit != cursor || count){
+		AN = ~(1<<(3-digit));
+	}
+	else{
+		AN = 0xF;
+	}
+
+	if(digit == 2){
+		DPSEG = ~disp_lut_dp[data[digit]]; //Write data??
+	}
+	else{
+		DPSEG = ~disp_lut[data[digit]]; //Write data??
+	}
+
+	if(digit == 3){
+		digit = 0;
+	}
+	else{
+		digit++;
+	}
+
+}
+
+_Bool counter(){
+	_Bool cnt = 0;
+	static uint16_t dispcnt = 0;
+
+	if(dispcnt < 500){
+		cnt = 1;
+	}
+	else{
+		cnt = 0;
+	}
+
+	if(++dispcnt == 1000)
+		dispcnt = 0;
+
+	return cnt;
+}
+
+void led_on(){
+	AN = 0xF;
+}
+
+void led_off(){
+	AN = 0x0;
+}
+
+void led_blinky(){
+	static enum{RESET, ON_1, OFF_1, ON_n, OFF_n}state=RESET;
+	static uint16_t cnt=0;
+	static uint16_t N = 0;
+	static uint16_t n = 0;
+
+	switch(state){
+		default:
+
+		case RESET:
+		led_on();
+		cnt=0;
+		break;
+
+		case ON_1:
+		if(cnt < 499){
+			cnt++;
+			state=ON_1;
+		}
+		else{
+			cnt = 0;
+			led_off();
+			state=OFF_1;
+		}
+		break;
+
+		case OFF_1:
+		if(cnt < 499){
+			cnt++;
+			state=OFF_1;
+		}
+		else if(N!=0 && cnt >=499){
+			cnt=0;
+			led_on();
+			n = N;
+			state = ON_n;
+		}
+		else if(N==0 && cnt >=499){
+			cnt=0;
+			led_on();
+			state = ON_1;
+		}
+		break;
+
+		case ON_n:
+		if(cnt < 249){
+			cnt++;
+		}
+		else{
+			cnt = 0;
+			led_off();
+			state = OFF_n;
+		}
+		break;
+
+		case OFF_n:
+		if(cnt < 249){
+			cnt++;
+		}
+		else if(cnt >= 249 && n!= 1){
+			cnt = 0;
+			led_on();
+			n--;
+			state = ON_n;
+		}
+		else if(cnt >= 249 && n==1){
+			cnt=0;
+			led_on();
+			state = ON_1;
+		}
+		break;
+	}
+}
+
+_Bool btn_pressed_R(){
+	static enum {NOT_PRESSED,DEBOUNCE_PRESS,PRESSED,DEBOUNCE_RELEASE}state = NOT_PRESSED;
+	static uint8_t cnt;
+	_Bool retval = 0;
+
+	_Bool B = BTN &(1<<3);
+
+	switch(state){
+		case NOT_PRESSED:
+		if(B){
+			cnt = 0;
+			state=DEBOUNCE_PRESS;
+		}
+		break;
+
+		case DEBOUNCE_PRESS:
+		if(B && (cnt < 5))
+			cnt++;
+		else if(B && (cnt >= 5)){
+			retval = 1;
+			state = PRESSED;
+		}
+		else if(B){
+			state = NOT_PRESSED;
+		}
+		break;
+
+		case PRESSED:
+		if(!B){
+			cnt=0;
+			state = DEBOUNCE_RELEASE;
+		}
+		break;
+
+		case DEBOUNCE_RELEASE:
+		if(B){
+			state = PRESSED;
+		}
+		else if(!B && (cnt >= 5)){
+			state = NOT_PRESSED;
+		}
+		else if(!B && (cnt < 5)){
+			cnt++;
+		}
+		break;
+	}
+	return retval;
+}
+
+_Bool btn_pressed_L(){
+	static enum {NOT_PRESSED,DEBOUNCE_PRESS,PRESSED,DEBOUNCE_RELEASE}state = NOT_PRESSED;
+	static uint8_t cnt;
+	_Bool retval = 0;
+
+	_Bool B = BTN &(1<<2);
+
+	switch(state){
+		case NOT_PRESSED:
+		if(B){
+			cnt = 0;
+			state=DEBOUNCE_PRESS;
+		}
+		break;
+
+		case DEBOUNCE_PRESS:
+		if(B && (cnt < 5))
+			cnt++;
+		else if(B && (cnt >= 5)){
+			retval = 1;
+			state = PRESSED;
+		}
+		else if(B){
+			state = NOT_PRESSED;
+		}
+		break;
+
+		case PRESSED:
+		if(!B){
+			cnt=0;
+			state = DEBOUNCE_RELEASE;
+		}
+		break;
+
+		case DEBOUNCE_RELEASE:
+		if(B){
+			state = PRESSED;
+		}
+		else if(!B && (cnt >= 5)){
+			state = NOT_PRESSED;
+		}
+		else if(!B && (cnt < 5)){
+			cnt++;
+		}
+		break;
+	}
+	return retval;
+}
+
+_Bool btn_pressed_U(){
+	static enum {NOT_PRESSED,DEBOUNCE_PRESS,PRESSED,DEBOUNCE_RELEASE}state = NOT_PRESSED;
+	static uint8_t cnt;
+	_Bool retval = 0;
+
+	_Bool B = BTN &(1<<0);
+
+	switch(state){
+		case NOT_PRESSED:
+		if(B){
+			cnt = 0;
+			state=DEBOUNCE_PRESS;
+		}
+		break;
+
+		case DEBOUNCE_PRESS:
+		if(B && (cnt < 5))
+			cnt++;
+		else if(B && (cnt >= 5)){
+			retval = 1;
+			state = PRESSED;
+		}
+		else if(B){
+			state = NOT_PRESSED;
+		}
+		break;
+
+		case PRESSED:
+		if(!B){
+			cnt=0;
+			state = DEBOUNCE_RELEASE;
+		}
+		break;
+
+		case DEBOUNCE_RELEASE:
+		if(B){
+			state = PRESSED;
+		}
+		else if(!B && (cnt >= 5)){
+			state = NOT_PRESSED;
+		}
+		else if(!B && (cnt < 5)){
+			cnt++;
+		}
+		break;
+	}
+	return retval;
+}
+
+_Bool btn_pressed_D(){
+	static enum {NOT_PRESSED,DEBOUNCE_PRESS,PRESSED,DEBOUNCE_RELEASE}state = NOT_PRESSED;
+	static uint8_t cnt;
+	_Bool retval = 0;
+
+	_Bool B = BTN &(1<<1);
+
+	switch(state){
+		case NOT_PRESSED:
+		if(B){
+			cnt = 0;
+			state=DEBOUNCE_PRESS;
+		}
+		break;
+
+		case DEBOUNCE_PRESS:
+		if(B && (cnt < 5))
+			cnt++;
+		else if(B && (cnt >= 5)){
+			retval = 1;
+			state = PRESSED;
+		}
+		else if(B){
+			state = NOT_PRESSED;
+		}
+		break;
+
+		case PRESSED:
+		if(!B){
+			cnt=0;
+			state = DEBOUNCE_RELEASE;
+		}
+		break;
+
+		case DEBOUNCE_RELEASE:
+		if(B){
+			state = PRESSED;
+		}
+		else if(!B && (cnt >= 5)){
+			state = NOT_PRESSED;
+		}
+		else if(!B && (cnt < 5)){
+			cnt++;
+		}
+		break;
+	}
+	return retval;
+}
+
+int main (){
+	uint8_t data[4];
+	uint8_t cursor = 0;
+	uint8_t leftmost = 0;
+	uint8_t rightmost = 0;
+	uint8_t leftmiddle = 0;
+	uint8_t rightmiddle = 0;
+	int32_t pulse_cntr = 0;
+	int32_t count = 0;
+	int32_t prev_count = 0;
+	int32_t difference = 0;
+	uint8_t testvalue = 0;
+	uint8_t elsevalue = 0;
+	int temp = 0;
+	_Bool display;
+	print("Lab8 Launched!\n\r");
+    	while(1){
+    		delay_ms(1);
+    		if(btn_pressed_D()){
+    			xil_printf("%04x \n", difference);
+    			xil_printf("%d", temp);
+    		}
+    		if(++pulse_cntr == 60){
+    			ALARM1_VALUE = 1000;
+
+    			JB &= ~(1<<0);
+    			while ((ALARM0 & (1<<1)) == 0){}
+
+    			JB |= (1<<0);
+    			pulse_cntr = 0;
+    			count = ALT_CNTR;
+    			difference = count - prev_count;
+    			int temp = difference / 14800;
+    			LEDS &= ~(1<<0);
+    			LEDS &= ~(1<<1);
+    			LEDS &= ~(1<<2);
+    			LEDS &= ~(1<<3);
+    			LEDS &= ~(1<<4);
+    			LEDS &= ~(1<<5);
+    			LEDS &= ~(1<<6);
+    			LEDS &= ~(1<<7);
+    			LEDS &= ~(1<<8);
+    			LEDS &= ~(1<<9);
+    			LEDS &= ~(1<<10);
+    			LEDS &= ~(1<<11);
+    			LEDS &= ~(1<<12);
+
+		/*for(int z = 0; z < 12; z++)
+		{//17214
+			if (((z * 21517) < difference) && (difference < 21517 * (z+1))){
+				for(int p = 1; p < z+2; p++){
+					if((p * INCH_CONST * 12) <= difference){
+						LEDS |= (1<<(p-1));
+						testvalue++;
+
+						xil_printf("%d \n", testvalue);
+					}
+				}
+				rightmost = testvalue;
+			}
+		}*/
+
+
+    	if(SW & (1<<0)){
+    		for(int j = 0; j < 36; j++)
+    		{//17214
+			if (((j * 21517) < difference) && (difference < 21517 * (j+1))){
+        			for(int i = 1; i < j+2; i++){
+        				if((i * INCH_CONST * 12) <= difference){
+        					//LEDS |= (1<<(i-1));
+        					testvalue++;
+        					if(testvalue == 12 || testvalue == 24 || testvalue == 36){
+        						LEDS |= (1<<((i/12)-1));
+        						elsevalue++;
+        					}
+        					xil_printf("%d \n", elsevalue);
+        				}
+        			}
+        		rightmiddle = elsevalue;
+       			}
+    		}
+    	}
+    	else{
+    		for(int z = 0; z < 12; z++)
+		{//17214
+			if (((z * 21517) < difference) && (difference < 21517 * (z+1))){
+				for(int p = 1; p < z+2; p++){
+					if((p * INCH_CONST * 12) <= difference){
+						LEDS |= (1<<(p-1));
+						testvalue++;
+						xil_printf("%d \n", testvalue);
+					}
+				}
+				rightmost = testvalue;
+			}
+		}
+    }
+
+    /*if(SW & (1<<0)){
+    	for(int i = 1; i < 4; i++){
+    		if((i * INCH_CONST * 12) <= difference){
+    			LEDS |= (1<<(i-1));
+    		}
+    	}
+    }
+    else{
+    	for(int z = 1; z < 13; z++){
+       		if((z * INCH_CONST * 12) <= difference){
+        		LEDS |= (1<<(z-1));
+       		}
+    	}
+    }*/
+
+    	prev_count = count;
+    	}
+    	data[3] = rightmost;
+    	data[2] = rightmiddle;
+    	data[1] = leftmiddle;
+    	data[0] = leftmost;
+    	display = counter();
+    	seg_disp(data, cursor, display);
+    	testvalue = 0;
+    	elsevalue = 0;
+    }
+}
